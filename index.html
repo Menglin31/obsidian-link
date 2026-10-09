@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>打開 Obsidian</title>
+<style>
+  :root { color-scheme: light dark; --bg: #fff; --fg: #1f2933; --muted: #5a6573; --accent: #7c3aed; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #16161a; --fg: #e5e7eb; --muted: #9aa3ae; --accent: #a78bfa; } }
+  body { margin: 0; padding: 32px 16px; background: var(--bg); color: var(--fg);
+         font: 16px/1.6 -apple-system, "PingFang TC", sans-serif; text-align: center; }
+  a.btn { display: inline-block; margin: 20px 0; padding: 14px 28px; border-radius: 12px;
+          background: var(--accent); color: #fff; text-decoration: none; font-weight: 600; }
+  code { color: var(--muted); font-size: 14px; word-break: break-all; }
+  p { color: var(--muted); }
+</style>
+</head>
+<body>
+<h2 id="title">正在打開 Obsidian…</h2>
+<a class="btn" id="open" href="#">打開 Obsidian</a>
+<p id="hint">沒有自動跳轉的話，請按上面的按鈕。</p>
+<code id="path"></code>
+<script>
+  // 只會產生 obsidian:// 連結，不會轉到其他網站。
+  // 網址只帶代號（書、課號），對應的資料夾寫在這裡，筆記名稱不會出現在網址上。
+  const VAULT = "Obsidian";
+  const BOOKS = { csapp: "學習/CSAPP" };
+  const VIEWS = { progress: "00 進度總覽" };
+
+  const q = new URLSearchParams(location.search);
+  const book = BOOKS[q.get("b")];
+  const lesson = q.get("l");
+  const view = VIEWS[q.get("v")];
+  let file = null;
+  if (book && lesson && /^\d{3}$/.test(lesson)) file = `${book}/課程/${lesson}`;
+  else if (book && view) file = `${book}/${view}`;
+
+  if (!file) {
+    document.getElementById("title").textContent = "連結不完整";
+    document.getElementById("open").style.display = "none";
+    document.getElementById("hint").textContent = "請回到 Telegram 重新點一次連結。";
+  } else {
+    const uri = "obsidian://open?vault=" + encodeURIComponent(VAULT) + "&file=" + encodeURIComponent(file);
+    document.getElementById("open").href = uri;
+    document.getElementById("path").textContent = file;
+    location.href = uri;
+  }
+</script>
+</body>
+</html>
