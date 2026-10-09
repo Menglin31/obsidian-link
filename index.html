@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="zh-Hant">
 <head>
@@ -23,25 +24,20 @@
 <p id="hint">沒有自動跳轉的話，請按上面的按鈕。</p>
 <code id="path"></code>
 <script>
+  // 通用的 Obsidian 轉址：路徑放在網址的 # 後面，例如
+  //   #vault=MyVault&file=資料夾/筆記
+  // # 後面的內容不會送到伺服器，只在這支手機上讀取。
+  // 這裡只會產生 obsidian:// 連結，不會轉到其他網站。
+  const q = new URLSearchParams(location.hash.slice(1));
+  const vault = q.get("vault");
+  const file = q.get("file");
 
-  const VAULT = "Obsidian";
-  const BOOKS = { csapp: "學習/CSAPP" };
-  const VIEWS = { progress: "00 進度總覽" };
-
-  const q = new URLSearchParams(location.search);
-  const book = BOOKS[q.get("b")];
-  const lesson = q.get("l");
-  const view = VIEWS[q.get("v")];
-  let file = null;
-  if (book && lesson && /^\d{3}$/.test(lesson)) file = `${book}/課程/${lesson}`;
-  else if (book && view) file = `${book}/${view}`;
-
-  if (!file) {
+  if (!vault || !file) {
     document.getElementById("title").textContent = "連結不完整";
     document.getElementById("open").style.display = "none";
-    document.getElementById("hint").textContent = "請回到 Telegram 重新點一次連結。";
+    document.getElementById("hint").textContent = "請回到原本的訊息重新點一次連結。";
   } else {
-    const uri = "obsidian://open?vault=" + encodeURIComponent(VAULT) + "&file=" + encodeURIComponent(file);
+    const uri = "obsidian://open?vault=" + encodeURIComponent(vault) + "&file=" + encodeURIComponent(file);
     document.getElementById("open").href = uri;
     document.getElementById("path").textContent = file;
     location.href = uri;
