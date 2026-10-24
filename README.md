@@ -1,37 +1,37 @@
 # obsidian-link
 
-一個靜態轉址網頁：把一般的 `https://` 連結轉成 `obsidian://` 連結，讓**不支援自訂連結格式的 App**（例如 Telegram）也能一鍵打開 Obsidian 裡的某份筆記。
+A static redirect page that turns a regular `https://` link into an `obsidian://` link, so **apps that don't support custom URL schemes** (such as Telegram) can open a specific Obsidian note with a single tap.
 
-## 為什麼需要它
+## Why
 
-Telegram Bot API 不接受 `obsidian://` 連結：
+The Telegram Bot API doesn't accept `obsidian://` links:
 
-- 訊息按鈕（inline keyboard）會被拒絕：`Unsupported URL protocol`
-- 訊息文字裡的 `<a href="obsidian://…">` 會被拿掉
-- 直接貼出的 `obsidian://…` 不會變成可以點的連結
+- Inline keyboard buttons are rejected with `Unsupported URL protocol`
+- `<a href="obsidian://…">` in message text is stripped
+- A bare `obsidian://…` in plain text isn't turned into a clickable link
 
-所以改用一般的 `https://` 連結，點開這個網頁後，再由網頁跳轉到 Obsidian。
+So you send a regular `https://` link instead. It opens this page, and the page redirects to Obsidian.
 
-## 用法
+## Usage
 
 ```
-https://<github-id>.github.io/obsidian-link/#vault=<vault 名稱>&file=<筆記路徑>
+https://<github-id>.github.io/obsidian-link/#vault=<vault name>&file=<note path>
 ```
 
-| 參數 | 說明 |
+| Parameter | Description |
 |---|---|
-| `vault` | Obsidian vault 的名稱 |
-| `file` | 筆記在 vault 裡的路徑，不含 `.md` |
+| `vault` | Name of the Obsidian vault |
+| `file` | Path of the note inside the vault, without `.md` |
 
-兩個參數都要做 URL 編碼（空白、中文、`/` 都要編碼）。
+Both parameters must be URL-encoded (spaces, non-ASCII characters and `/` included).
 
-**範例**：打開 vault `MyVault` 裡的 `Notes/Daily/2026-01-01`
+**Example**: open `Notes/Daily/2026-01-01` in the vault `MyVault`
 
 ```
 https://menglin31.github.io/obsidian-link/#vault=MyVault&file=Notes%2FDaily%2F2026-01-01
 ```
 
-### 在程式裡產生連結（Python）
+### Building links in code (Python)
 
 ```python
 from urllib.parse import urlencode, quote
@@ -41,35 +41,35 @@ def obsidian_link(vault: str, file: str) -> str:
         {"vault": vault, "file": file}, quote_via=quote)
 ```
 
-### 放進 Telegram 訊息按鈕
+### Using it in a Telegram inline button
 
 ```python
 reply_markup = {"inline_keyboard": [[
-    {"text": "📖 打開筆記", "url": obsidian_link("MyVault", "Notes/Daily/2026-01-01")}
+    {"text": "📖 Open note", "url": obsidian_link("MyVault", "Notes/Daily/2026-01-01")}
 ]]}
 ```
 
-## 點擊後會發生什麼（iPhone）
+## What happens when you tap it (iPhone)
 
-1. Telegram 用內建瀏覽器打開這個網頁
-2. 網頁自動跳轉，iOS 跳出「要在 Obsidian 中打開嗎？」
-3. 按「打開」，Obsidian 打開指定的筆記
+1. Telegram opens this page in its in-app browser
+2. The page redirects automatically, and iOS asks "Open in Obsidian?"
+3. Tap "Open" and Obsidian opens the note
 
-如果沒有自動跳轉，網頁上有「打開 Obsidian」按鈕可以手動點。
+If the redirect doesn't happen automatically, tap the "打開 Obsidian" (Open Obsidian) button on the page.
 
-## 隱私與安全
+## Privacy and security
 
-- **筆記路徑不會送到伺服器。** 參數放在網址的 `#` 後面，瀏覽器不會把 `#` 之後的內容送給 GitHub，只在你的裝置上讀取。
-- **網頁裡沒有任何個人資訊。** 不寫死 vault 名稱或資料夾，是一個通用工具。
-- **只會跳轉到 Obsidian。** 程式只會產生 `obsidian://open` 連結，不能被拿來轉到其他網站。
-- 不載入任何外部程式、字型或統計工具；設定了 `noindex`，不讓搜尋引擎收錄；設定 `no-referrer`，不把來源網址送給其他網站。
+- **Note paths never reach the server.** The parameters live after the `#` in the URL. Browsers don't send anything after `#` to GitHub; it's only read on your device.
+- **The page contains no personal information.** No vault name or folder is hardcoded; it's a general-purpose tool.
+- **It only redirects to Obsidian.** The script only builds `obsidian://open` links, so it can't be used to redirect to other websites.
+- No external scripts, fonts or analytics are loaded. `noindex` keeps search engines from indexing it, and `no-referrer` keeps the source URL from being sent to other sites.
 
-## 檔案
+## Files
 
-| 檔案 | 說明 |
+| File | Description |
 |---|---|
-| `index.html` | 整個轉址網頁（HTML + 一小段 JavaScript），沒有其他依賴 |
+| `index.html` | The entire redirect page (HTML plus a small piece of JavaScript), no dependencies |
 
-## 部署
+## Deployment
 
-使用 GitHub Pages：Settings → Pages → Source 選 `Deploy from a branch`，Branch 選 `main`、`/ (root)`。
+Use GitHub Pages: Settings → Pages → Source: `Deploy from a branch`, Branch: `main`, `/ (root)`.
